@@ -18,7 +18,9 @@ TravelPedia uses a number of open source projects to work properly:
 * [MongoDB] - Backend is schemaless, fully json
 * [SendGrid] - Sending mails to our customers
 * [Weather.com APIs] - We pull live weather information for places
-* [IBM BlueMix] - Our application is integrated with IBM BlueMix PaaS platform
+
+
+IBM BlueMix - Our application is integrated with IBM BlueMix PaaS platform
 
 And of course TravelPedia itself is open source with a [public repository](https://github.com/gouravshenoy/TravelPedia) on GitHub.
 
