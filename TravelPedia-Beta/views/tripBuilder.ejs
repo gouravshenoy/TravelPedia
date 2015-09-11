@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>TravelPedia :: Build your trip</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.css">
+    <link rel="stylesheet" href="/stylesheets/bootstrap-slider.css">
+    <link rel="stylesheet" href="/stylesheets/tripBuilder.css">
+
+</head>
+
+<body>
+
+<!-- temp map for modal -->
+<div id="map"></div>
+
+<!-- Details Modal Start -->
+	<div class="modal fade" id="placeDetailsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title" id="myModalLabel"></h4>
+				</div>
+				
+				<div class="modal-body">
+					<div class="row">
+						<img src="/images/loading.gif" id="loading" align="middle">
+						<!-- Carousel for place photos -->
+						<div id="carousel-details" class="carousel slide" data-ride="carousel" style="display:none">
+                            <div class="carousel-inner"></div>
+                            <a class="left carousel-control" href="#carousel-details" data-slide="prev">
+                                <span class="glyphicon glyphicon-chevron-left"></span>
+                            </a>
+                            <a class="right carousel-control" href="#carousel-details" data-slide="next">
+                                <span class="glyphicon glyphicon-chevron-right"></span>
+                            </a>
+                        </div>
+					</div>
+					
+					<div class="row">
+						<!-- Place Details Canvas -->
+						<h3 style="padding:10px"><span class="label label-primary">HOTEL DETAILS</span></h3>
+						<div id="detailsPanel" style="padding:10px"></div>
+					</div>
+					
+					<div class="row">
+						<!-- Place User Reviews panel -->
+						<h3 style="padding:10px"><span class="label label-primary">USER REVIEWS</span></h3>
+						<div id="reviews-panel" style="padding:10px;"></div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button id="detailsOkBtn" type="button" class="btn btn-primary" data-dismiss="modal">Continue</button>
+				</div>
+			</div>
+		</div>
+	</div>
+<!-- End of Details Modal -->
+
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#home">TravelPedia</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="#">My Account</a>
+                    	<ul>
+							<li><a href="/users/savedTrips">My Trips</a></li>
+							<li><a href="/logout">Logout</a></li>
+						</ul>
+                    </li>
+                    <li><a href="/trip/sharedTrips">Shared Trips</a>
+                    </li>
+                    <li><a href="/contactus">Contact</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <div class="container-fluid" style="padding-left:3%; padding-right:3%">
+    
+        <div class="row">
+
+            <div class="col-md-3">
+                <p class="lead">Customize Your Trip
+                	<span><img class="img-responsive" src="/images/powered-by-google-on-white.png" alt=""></span>
+                </p>
+                <div class="list-group">
+                	<h3><span class="label label-primary">Navigation Links</span></h3>
+                    <a href="#" id="accomodationNav" class="list-group-item">Accomodation</a>
+                    <a href="#" id="restaurantsNav" class="list-group-item">Restaurants</a>
+                    <a href="#" id="placesToVisitNav" class="list-group-item">Places to Visit</a>
+                    <a href="#" id="climateNav" class="list-group-item">Climate Preview</a>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="alert alert-info">
+                            <p class="text-center">
+                                <strong>
+                                Customize your trip - Add places to visit, restaurants, accomodation hotels, etc to your plan!
+                                </strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="well">
+				<form action="/trip/plan/confirm" method="post">
+					<input type="hidden" name="username" value="<%= locals.username%>">
+					<input type="hidden" name="startDate" value="<%= locals.startDate%>">
+					<input type="hidden" name="endDate" value="<%= locals.endDate%>">
+					
+                    <div class="row">
+                        <div class="col-md-12">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs" role="tablist">
+                            <% 
+                            	var locCount = 0;
+								if(locals.holidayLocations) {
+									for(var i=0; i<locals.holidayLocations.length; i++) {
+							%>
+									<input type="hidden" name="locations" value="<%= locals.holidayLocations[i]%>">
+									
+                            		<% 
+                            			if(locCount===0) {
+                            		%>                          	
+                            			<li class="active"><a href="#location<%= ++locCount%>" role="tab" data-toggle="tab" data-locname="<%= locals.holidayLocations[i]%>"><%= locals.holidayLocations[i]%></a></li>
+                            		<%	
+                            			} 
+                            			else { 
+                            		%>
+                            			<li><a href="#location<%= ++locCount%>" role="tab" data-toggle="tab" data-locname="<%= locals.holidayLocations[i]%>"><%= locals.holidayLocations[i]%></a></li>	
+                            		<%	
+                            			} // end the if-locCount loop
+                            		%>
+                            	<%
+                            		} //end the for loop
+                            	%>
+                            <%	
+                            	} // end the if-holidayLocations loop
+                            %>
+                            	
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                            
+                            	<% 
+	                            	var locCount = 0;
+									if(locals.holidayLocations) {
+										for(var i=0; i<locals.holidayLocations.length; i++) {
+								%>
+                            			<% 
+                            				if(locCount===0) {
+                            			%>
+                            				<!-- Content for Active Tab -->
+											<div class="tab-pane active" id="location<%= ++locCount%>">
+										<%
+											}
+											else {
+										%>
+											<!-- Content for Inactive Tab -->
+											<div class="tab-pane" id="location<%= ++locCount%>">
+										<%
+											} // end the if-locCount loop
+										%>
+			                                    <!-- Accomodation div -->
+			                                    <div class="row" id="accomodation_<%= locals.holidayLocations[i]%>" style='display:none'>
+			                                        <div class="col-md-12">
+			                                        	<div class="panel panel-default">
+			                                        		<div class="panel-heading">
+					                                        	<div class="row">
+					                                            	<h4>
+					                                            		<span class="label label-success">HOTELS</span>
+					                                            		<span class="text-center" style="padding-left: 20px">Find the best hotels for your pleasant stay.</span>
+					                                            	</h4>
+					                                            </div>
+					                                        </div>
+					                                        <!-- /panel-heading -->
+					                                        
+					                                        <div class="panel-body">
+					                                        	<div class="row">
+					                                        		<div id="loadingPanelACCM_<%= locals.holidayLocations[i]%>">
+		                                            					<img class="img-rounded" src="/images/loading.gif" height="60">
+			                                            			</div>
+			                                            			<div id="lodging-map_<%= locals.holidayLocations[i]%>" style="height:300px; width:100%"></div>
+			                                            		</div>
+					                                        </div>
+					                                        <!-- /panel-body -->
+			                                            	
+			                                            	<div class="panel-footer">
+			                                            		<div class="row">
+														            <div id="hotelCarousel_<%= locals.holidayLocations[i]%>" class="carousel slide">
+														                <!-- Carousel items -->
+														                <div class="carousel-inner"></div>
+														                <!--/carousel-inner--> 
+														                <a class="left carousel-control" href="#hotelCarousel_<%= locals.holidayLocations[i]%>" data-slide="prev" style="display:none">
+																			<span class="glyphicon glyphicon-chevron-left"></span>
+																		</a>
+														                <a class="right carousel-control" href="#hotelCarousel_<%= locals.holidayLocations[i]%>" data-slide="next" style="display:none">
+																			<span class="glyphicon glyphicon-chevron-right"></span>
+																		</a>
+														            </div>
+														            <!--/hotelCarousel-->
+														        </div>
+														        <!--/row-->	
+														        <hr>
+														        <div class="alert alert-info" style="padding:10px">
+														        	<p class="text-left"><b>Filter by Price	| Rs. 500</b>
+														        		<input style="padding:20px" type="text" id="budgetRangeSlider_<%= locals.holidayLocations[i]%>" class="col-md-6 slider" data-slider-min="500" data-slider-max="8000" data-slider-step="1" data-slider-value="1500">
+														        		<b>Rs. 8000</b>
+														        	</p>
+														        </div>
+														        <!-- /alert -->
+														        
+														        <div id="ratingFilter_<%= locals.holidayLocations[i]%>" class="input-group alert alert-info">
+																	<p class="text-right" style="padding: 10px"><b>Filter by Hotel Rating</b></p>
+																	<span class="input-group-addon">1 Star
+																		<input type="checkbox">
+																	</span>
+																	<span class="input-group-addon">2 Star
+																		<input type="checkbox">
+																	</span>
+																	<span class="input-group-addon">3 Star
+																		<input type="checkbox">
+																	</span>
+																	<span class="input-group-addon">4 Star
+																		<input type="checkbox">
+																	</span>  
+																	<span class="input-group-addon">5 Star
+																		<input type="checkbox">
+																	</span>
+																	<button type="button" class="btn btn-warning">Filter</button>
+																</div>
+														        <!-- /input-group -->
+														        
+			                                            	</div>
+			                                            	<!-- /panel-footer -->
+			                                            </div>
+														<!-- /panel -->
+			                                        </div>
+			                                        <hr>
+			                                    </div>
+	
+			                                    <!-- Restaurants div -->
+			                                    <div class="row" id="restaurants_<%= locals.holidayLocations[i]%>" style='display:none'>
+			                                        <div class="col-md-12">
+			                                        	<div class="panel panel-default">
+			                                        		<div class="panel-heading">
+					                                            <div class="row">
+					                                            	<h4>
+					                                            		<span class="label label-success">RESTAURANTS</span>
+																		<span class="text-center" style="padding-left: 50px">Find the best restaurants for some yummy lipsmicking food!</span>
+																	</h4>
+					                                            </div>
+					                                        </div>
+					                                        <!-- /panel-heading -->
+					                                        
+					                                        <div class="panel-body">					                                        
+					                                            <div class="row">
+					                                            	<div id="loadingPanelREST_<%= locals.holidayLocations[i]%>">
+		                                            					<img class="img-rounded" src="/images/loading.gif" height="60">
+			                                            			</div>
+					                                            	<div id="restaurant-map_<%= locals.holidayLocations[i]%>" style="height:300px; width:100%"></div>
+					                                            </div>
+			                                            	</div>
+			                                            	<!-- /panel-body -->
+			                                            	
+			                                            	<div class="panel-footer">
+					                                            <div class="row">
+														            <div id="restaurantCarousel_<%= locals.holidayLocations[i]%>" class="carousel slide">
+														                <!-- Carousel items -->
+														                <div class="carousel-inner"></div>
+														                <!--/carousel-inner--> 
+														                <a class="left carousel-control" href="#restaurantCarousel_<%= locals.holidayLocations[i]%>" data-slide="prev" style="display:none">
+																			<span class="glyphicon glyphicon-chevron-left"></span>
+																		</a>
+														                <a class="right carousel-control" href="#restaurantCarousel_<%= locals.holidayLocations[i]%>" data-slide="next" style="display:none">
+																			<span class="glyphicon glyphicon-chevron-right"></span>
+																		</a>
+														            </div>
+														            <!--/hotelCarousel-->
+														        </div>
+														        <!--/row-->
+														   </div>
+														   <!-- /panel-footer -->
+														</div>
+														<!-- /panel -->
+			                                        </div>
+			                                    </div>
+	
+			                                    <!-- Places-to-Visit div -->
+			                                    <div class="row" id="places-to-visit_<%= locals.holidayLocations[i]%>" style='display:none'>
+			                                        <div class="col-md-12">
+			                                        	<div class="panel panel-default">
+			                                        		<div class="panel-heading">
+					                                            <div class="row">
+					                                            	<h4>
+					                                            		<span class="label label-success">PLACES TO VISIT</span>
+																		<span class="text-center" style="padding-left: 50px">Find the best places to visit here</span>
+																	</h4>
+					                                            </div>
+                                 							</div>
+                                 							<!-- /panel-heading -->
+                                 							
+                                 							<div class="panel-body">
+			                                            		<div class="row">
+			                                            			<div id="loadingPanelPTV_<%= locals.holidayLocations[i]%>">
+		                                            					<img class="img-rounded" src="/images/loading.gif" height="60">
+			                                            			</div>
+			                                            			<div id="placesToVisit-map_<%= locals.holidayLocations[i]%>" style="height:350px; width:100%"></div>
+			                                            		</div>
+			                                            	</div>
+			                                            	<!-- /panel-body -->
+			                                            	
+			                                            	<div class="panel-footer">
+			                                            		<div class="row">
+														            <div id="placesToVisitCarousel_<%= locals.holidayLocations[i]%>" class="carousel slide">
+														                <!-- Carousel items -->
+														                <div class="carousel-inner"></div>
+														                <!--/carousel-inner--> 
+														                <a class="left carousel-control" href="#placesToVisitCarousel_<%= locals.holidayLocations[i]%>" data-slide="prev" style="display:none">
+																			<span class="glyphicon glyphicon-chevron-left"></span>
+																		</a>
+														                <a class="right carousel-control" href="#placesToVisitCarousel_<%= locals.holidayLocations[i]%>" data-slide="next"  style="display:none">
+																			<span class="glyphicon glyphicon-chevron-right"></span>
+																		</a>
+														            </div>
+														            <!--/placesToVisitCarousel-->
+														        </div>
+														        <!--/row-->
+			                                            	</div>
+			                                            	<!-- /panel-footer -->
+			                                            </div>
+			                                            <!-- /panel -->
+			                                        </div>
+			                                    </div>
+	
+			                                    <!-- Climate-Preview div -->
+			                                    <div class="row" id="climate-preview_<%= locals.holidayLocations[i]%>" style='display:none'>
+			                                        <div class="col-md-12">
+			                                        	<div class="panel panel-default">
+			                                        		<div class="panel-heading">
+			                                            		<div class="row" style="padding-left:20px;">
+			                                            			<h4>
+			                                            				<span class="label label-success">CLIMATE PREVIEW</span>
+			                                            				<span class="text-center" style="padding-left: 50px">What do the weather gods have to say ??</span>
+			                                            			</h4>
+			                                            		</div>
+			                                            	</div>
+			                                            	<div class="panel-body">
+			                                            		<div class="row">
+			                                            			<div id="loadingPanelClimate_<%= locals.holidayLocations[i]%>">
+		                                            					<img class="img-rounded" src="/images/loading.gif" height="60">
+			                                            			</div>
+			                                            			<div id="cliamtePreview-panel_<%= locals.holidayLocations[i]%>"></div>
+			                                            		</div>
+			                                            	</div>
+			                                            </div>
+			                                        </div>
+			                                        <hr>
+			                                    </div>
+			                                    
+			                                    <div class="row" id="accomodationMsg">
+													<div class="col-md-12">
+														<div class="alert alert-success">
+			                                                <p class="text-center">Click Navigation Links On the Left to Toggle Hotels View</p>
+			                                            </div>
+													</div>
+												</div>
+												
+												<div class="row" id="restaurantMsg">
+													<div class="col-md-12">
+														<div class="alert alert-success">
+			                                                <p class="text-center">Click Navigation Links On the Left to Toggle Restaurants View</p>
+			                                            </div>
+													</div>
+												</div>
+												
+												<div class="row" id="placesToVisitMsg">
+													<div class="col-md-12">
+														<div class="alert alert-success">
+			                                                <p class="text-center">Click Navigation Links On the Left to Toggle Places To Visit View</p>
+			                                            </div>
+													</div>
+												</div>
+												
+												<div class="row" id="cliamtePreviewMsg">
+													<div class="col-md-12">
+														<div class="alert alert-success">
+			                                                <p class="text-center">Click Navigation Links On the Left to Toggle Climate View</p>
+			                                            </div>
+													</div>
+												</div>
+			                                    
+	                                		</div>
+										
+									<%
+                            			} //end the for loop
+                            		%>
+                            	<%	
+                            		} // end the if-holidayLocations loop
+                            	%>
+
+                            	</div>
+                        	</div>
+                    	</div>
+               		</div>
+               		
+					<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Finalize Trip</button>
+					</form>
+            	</div>
+        	</div>
+    </div>
+    <!-- /.container -->
+
+    <div class="container">
+
+        <hr>
+
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; <b>TravelPedia</b> - by ATHENA RANGERS (Gourav Shenoy & Manjiri Kamat)
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    <!-- /.container -->
+
+    <!-- JavaScript -->
+    <script>    	
+    	var locationsArray = "<%= locals.holidayLocations%>".split(",");    	    	
+    </script>
+    
+    <script src="/javascripts/jquery-1.10.2.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="/javascripts/jquery.simpleWeather.js"></script>
+    <script src="/javascripts/jquery.simpleWeather.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="/javascripts/bootstrap-slider.js"></script>
+    <script src="/javascripts/hotelDetailsModal.js"></script>
+    <script src="/javascripts/tripBuilderScript.js"></script>
+</body>
+
+</html>

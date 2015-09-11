@@ -1,0 +1,31 @@
+{
+  "name": "TravelPedia-beta",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "~4.2.0",
+    "express-session": "~1.0.2",
+    "passport" : "~0.1.17",     
+    "passport-local" : "~0.1.6",
+    "static-favicon": "~1.0.0",
+    "morgan": "~1.0.0",
+    "cookie-parser": "~1.0.1",
+    "body-parser": "~1.0.0",
+    "debug": "~0.7.4",
+    "ejs": "~0.8.5",
+    "mongoose": "*",
+    "connect-flash": "~0.1.1",   
+    "bcrypt-nodejs": "latest",
+    "sendgrid": "*"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+      "grunt-contrib-jshint": "*"
+  },
+  "engines": {
+      "node": "0.10.26"
+  }
+}

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>TravelPedia :: Choose your destination</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.css">
+	<link rel="stylesheet" href="http://startbootstrap.com/templates/css/shop-item.css">
+	<link rel="stylesheet" href="/stylesheets/bootstrap-datepicker.css">
+</head>
+
+<body>
+
+    <!-- Map Modal Start -->
+	<div class="modal fade" id="mapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title" id="myModalLabel">
+						<span class="glyphicon glyphicon-globe"></span>&nbsp;Recommended Route for You..
+					</h4>
+				 </div>
+				
+				<div class="modal-body">
+					<div class="row">
+						<!-- Google Maps canvas -->
+						<div id="map-canvas" style="height:250px; width:100%; padding:10px"></div>
+					</div>
+					
+					<div class="row">
+						<!-- Google Maps directions panel -->
+						<div id="directions-panel" style="padding:10px; margin:10px 10px"></div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Discard</button>
+					<button type="button" id="proceedBtn" class="btn btn-primary">Proceed</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- End of Map Modal -->
+	
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#home">TravelPedia</a>
+				
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="#">My Account</a>
+                    	<ul>
+							<li><a href="/users/savedTrips">My Trips</a></li>
+							<li><a href="/logout">Logout</a></li>
+						</ul>
+                    </li>
+                    <li><a href="/trip/sharedTrips">Shared Trips</a>
+                    </li>
+                    <li><a href="/contactus">Contact</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+            <!-- show any messages that come back with authentication -->
+            <% if (locals.message) { %>
+                <div class="alert alert-danger"><%= locals.message %></div>
+            <% } %>
+				<div class="well">
+                    <div class="row">
+                        <div class="col-md-12">						
+							<div class="thumbnail">
+								<img class="img-responsive" src="http://www.foodfitnesslifelove.com/wp-content/uploads/2013/02/Traveling-to-India-Top-destinations.jpg" alt="">
+								<div class="caption-full">
+									<h3>Relax… You’re with us! We make it simple.</h3>
+								</div>
+							</div>
+							<div class='alert alert-info'>
+								<h4 class='text-center'>Create your kind of holiday.</h4>
+							</div>
+						</div>
+					</div>
+				</div>	
+			</div>				
+        </div> 
+		
+		<div class="well">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="control-group form-horizontal" id="fields">								
+						<form id="locationSelect" class="input-append" method="POST" action="/trip/build">
+							
+							<div class="row">
+								<div class="col-md-12">
+									<div class="col-lg-6">
+										<div class="input-group">
+											<span class="input-group-addon">
+												Start Date
+											</span>
+											<input id="startDate" name="startDate" type="text" class="form-control required" placeholder="Start Date" >
+										</div><!-- /input-group -->
+									</div><!-- /.col-lg-6 -->
+									
+									<div class="col-lg-6">
+										<div class="input-group">
+											<span class="input-group-addon">
+												End Date
+											</span>
+											<input id="endDate" name="endDate" type="text" class="form-control required" placeholder="End Date">
+										</div><!-- /input-group -->
+									</div><!-- /.col-lg-6 -->
+								</div>
+							</div>	
+							
+							<div id="field">
+								<div class="col-lg-6">
+									<div class="input-group">
+										<span class="input-group-addon">
+											Start Location
+										</span>
+										<input id="origin" name="origin" type="text" class="form-control required" placeholder="Start Location">
+									</div><!-- /input-group -->
+								</div><!-- /.col-lg-6 -->
+								
+								<div class="col-lg-6">
+									<div class="input-group">
+										<span class="input-group-addon">
+											End Location
+										</span>
+										<input id="destination" name="destination" type="text" class="form-control required" placeholder="End Location">
+									</div><!-- /input-group -->
+								</div><!-- /.col-lg-6 -->
+								
+								<hr>
+								
+								<div class="row">
+									<div id="waypointContainer" class="col-lg-6">
+										<!-- Waypoints come here -->
+									</div>
+								</div>
+								
+								<hr>
+								
+								<div id="waypoint-limit" class="col-lg-12" role="alert">
+									<div class="alert alert-danger" role="alert">
+										<strong>Oops.</strong>Maximum of 4 waypoints can be added!
+									</div>
+								</div>
+								
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="col-lg-6 text-center">
+											<button id="addMoreBtn" class="btn btn-primary" type="button">Add More Locations</button>	
+										</div>
+										
+										<div class="col-lg-6 text-center">
+											<button type="submit" id="confirmBtn" class="btn btn-success">Confirm & Proceed</button>	
+										</div>
+									</div>
+								</div>										
+							</div>
+						</form>						
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>
+    <!-- /.container -->
+
+    <div class="container">
+        <hr>
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; <b>TravelPedia</b> - by ATHENA RANGERS (Gourav Shenoy & Manjiri Kamat)
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <!-- /.container -->
+    
+    <!-- JavaScript -->   
+    <script src="/javascripts/jquery-1.10.2.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js"></script>	
+	<script src="/javascripts/bootstrap-datepicker.js"></script>
+	<script src="/javascripts/locationSelectScript.js"></script>
+
+	</body>
+
+</html>

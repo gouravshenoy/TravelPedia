@@ -1,0 +1,13 @@
+applications:
+- services:
+  - MongoLab-n7
+  - SendGrid-3k
+  - Geocoding-yk
+  disk_quota: 1024M
+  host: TravelPedia-beta
+  name: TravelPedia-beta
+  command: node app.js
+  path: .
+  domain: mybluemix.net
+  instances: 1
+  memory: 512M

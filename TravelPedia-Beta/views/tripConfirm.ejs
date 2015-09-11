@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>TravelPedia :: Confirm your trip</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.css">
+    
+    <style>
+    	body {
+		  padding-top: 70px
+		}
+    </style>
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">          
+                <a class="navbar-brand" href="/">TravelPedia</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="#">My Account</a>
+                    	<ul>
+							<li><a href="/users/savedTrips">My Trips</a></li>
+							<li><a href="/logout">Logout</a></li>
+						</ul>
+                    </li>
+                    <li><a href="/trip/sharedTrips">Shared Trips</a>
+                    </li>
+                    <li><a href="/contactus">Contact</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <div class="container-fluid" style="padding-left:3%; padding-right:3%">
+    
+        <div class="row">
+            <div class="col-md-3">
+                <p class="lead">Your almost Done <span class="glyphicon glyphicon-leaf"></span>
+                	<span><img class="img-responsive" src="/images/powered-by-google-on-white.png" alt=""></span>
+                </p>
+                <div class="list-group">
+                	<h3><span class="label label-primary">Navigation Links</span></h3>
+<%
+	console.log('trip received: ' + locals.tripJSON);
+	console.log('type: ' + locals.tripJSON.locations);
+
+	if(locals.tripJSON && typeof locals.tripJSON.locations == 'string') {
+%>		
+					<a href="#<%=locals.tripJSON.locations%>" class="list-group-item"><%=locals.tripJSON.locations%></a>
+	
+<%	
+	}
+	//end-if [typeof-string]
+	
+	if(locals.tripJSON && typeof locals.tripJSON.locations == 'object') {
+		for(var i=0; i<locals.tripJSON.locations.length; i++){
+%>
+					<a href="#<%=locals.tripJSON.locations[i]%>" class="list-group-item"><%=locals.tripJSON.locations[i]%></a>
+<%
+		}
+		//end-for-i
+	}	
+	//end-if [typeof-object]
+%>
+                </div>
+                <!-- /list-group -->
+            </div>
+            <!-- col-md-3 -->
+
+            <div class="col-md-9">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="alert alert-info">
+                            <p class="text-center">
+                                <strong>
+                                Whoahh!! Perfect selection & Smart choice.. Just glance through; check if ALL IS WELL and confirm your trip! 
+                                </strong>
+                            </p>
+                        </div>
+                    </div>
+                    <!-- /col-md-12 -->
+                </div>
+                <!-- /row -->
+
+                <div class="well">
+                	<div class="row">
+						<div class="col-xs-12 col-md-12">
+<%
+	if(typeof locals.tripJSON.locations == 'string'){	
+		var locationName = locals.tripJSON.locations;
+%>
+							<div class="panel panel-primary" id="<%=locationName%>">
+								<div class="panel-heading">
+									<h4>
+										<span class="glyphicon glyphicon-thumbs-up pull-left"></span>
+										&nbsp; <%=locationName%>, IN
+										<span class="glyphicon glyphicon-chevron-up pull-right"><a href="#">Up</a></span>
+									</h4>
+								</div>
+								<!-- /panel-heading -->
+								<div class="panel-body">
+									<p><strong>TravelPedia recommends following dates to stay here (as per your trip details provided to us)</strong></p>
+									<p><span class="glyphicon glyphicon-calendar"></span> Start trip here on : <%= locals.tripJSON[locationName].startDateHere%></p>
+									<p><span class="glyphicon glyphicon-calendar"></span> End trip here on : <%= locals.tripJSON[locationName].endDateHere%></p>
+								
+								<!-- ############## ACCOMODATON LIST ############## -->
+								
+									<ul class="list-group col-xs-12 col-md-4">
+										<li class="list-group-item list-group-item-warning">Places To Stay</li>
+<%
+		var locationJSON = locals.tripJSON[locationName];
+		if(locationJSON.accomodations.length == 0) {
+		
+%>
+										<li class="list-group-item">No Accomodation Hotels Selected for this location!</li>
+
+<%		}
+		//end-if
+		
+		for(var ac=0; ac<locationJSON.accomodations.length; ac++){
+		var accomodationDetails = locationJSON.accomodations[ac].split("__");
+		var accomodationName = accomodationDetails[0];
+		var accomodationPrice = accomodationDetails[1];
+		
+%>
+										<li class="list-group-item">
+											<%= accomodationName%>
+											<br>
+											<p class="text-right">[Rs. <%= accomodationPrice%> /night]</p>
+										</li>
+<%
+		}
+		//end-for-ac
+%>									
+									</ul>
+									<!-- /list-group #ACCOMODATION -->
+	
+									<!-- ############## RESTAURANT LIST ############## -->
+								
+									<ul class="list-group col-xs-12 col-md-4">
+										<li class="list-group-item list-group-item-warning">Places To Eat</li>
+<%
+		if(locationJSON.restaurants.length == 0) {
+		
+%>
+										<li class="list-group-item">No Restaurants Selected for this location!</li>
+
+<%		}
+		//end-if
+		
+		for(var rs=0; rs<locationJSON.restaurants.length; rs++){
+		var restaurantName = locationJSON.restaurants[rs];
+%>
+										<li class="list-group-item"><%= restaurantName%></li>
+<%
+		}
+		//end-for-rs
+%>									
+									</ul>
+									<!-- /list-group #RESTAURANTS -->									
+	
+									<!-- ############## PLACES TO VISIST LIST ############## -->
+								
+									<ul class="list-group col-xs-12 col-md-4">
+										<li class="list-group-item list-group-item-warning">Places To Visit</li>
+<%
+		if(locationJSON.ptv.length == 0) {
+		
+%>
+										<li class="list-group-item">No Restaurants Selected for this location!</li>
+
+<%		}
+		//end-if
+		
+		for(var pt=0; pt<locationJSON.ptv.length; pt++){
+		var ptvName = locationJSON.ptv[pt];
+%>
+										<li class="list-group-item"><%= ptvName%></li>
+<%
+		}
+		//end-for-pt
+%>									
+									</ul>
+									<!-- /list-group #PLACES TO VISIST -->
+								</div>
+								<!-- /panel-body -->							
+							</div>
+							<!-- /panel-primary -->	
+						
+<%
+	}
+	//end-if [typeof-string]		
+
+	if(typeof locals.tripJSON.locations == 'object') {
+		for(var i=0; i<locals.tripJSON.locations.length; i++){
+		var locationName = locals.tripJSON.locations[i];
+%>
+							<div class="panel panel-primary" id="<%=locationName%>">
+								<div class="panel-heading">
+									<h4>
+										<span class="glyphicon glyphicon-thumbs-up pull-left"></span>
+										&nbsp; <%=locationName%>, IN
+										<span class="glyphicon glyphicon-chevron-up pull-right"><a href="#">Up</a></span>
+									</h4>
+								</div>
+								<!-- /panel-heading -->
+								<div class="panel-body">
+									<p><strong>TravelPedia recommends following dates to stay here (as per your trip details provided to us)</strong></p>
+									<p><span class="glyphicon glyphicon-calendar"></span> Start trip here on : <%= locals.tripJSON[locationName].startDateHere%></p>
+									<p><span class="glyphicon glyphicon-calendar"></span> End trip here on : <%= locals.tripJSON[locationName].endDateHere%></p>									
+
+								<!-- ############## ACCOMODATON LIST ############## -->								
+									<ul class="list-group col-xs-12 col-md-4">
+										<li class="list-group-item list-group-item-warning">Places To Stay</li>
+<%
+		var locationJSON = locals.tripJSON[locationName];
+		if(locationJSON.accomodations.length == 0) {
+%>
+										<li class="list-group-item">No Accomodation Hotels Selected for this location!</li>
+
+<%		}
+		//end-if
+		
+		for(var ac=0; ac<locationJSON.accomodations.length; ac++){
+		var accomodationDetails = locationJSON.accomodations[ac].split("__");
+		var accomodationName = accomodationDetails[0];
+		var accomodationPrice = accomodationDetails[1];
+		
+%>
+										<li class="list-group-item">
+											<%= accomodationName%>
+											<br>
+											<p class="text-right">[Rs. <%= accomodationPrice%> /night]</p>
+										</li>
+<%
+		}
+		//end-for-ac
+%>									
+									</ul>
+									<!-- /list-group #ACCOMODATION -->
+	
+									<!-- ############## RESTAURANT LIST ############## -->
+								
+									<ul class="list-group col-xs-12 col-md-4">
+										<li class="list-group-item list-group-item-warning">Places To Eat</li>
+<%
+		if(locationJSON.restaurants.length == 0) {
+		
+%>
+										<li class="list-group-item">No Restaurants Selected for this location!</li>
+
+<%		}
+		//end-if
+		
+		for(var rs=0; rs<locationJSON.restaurants.length; rs++){
+		var restaurantName = locationJSON.restaurants[rs];
+%>
+										<li class="list-group-item"><%= restaurantName%></li>
+<%
+		}
+		//end-for-rs
+%>									
+									</ul>
+									<!-- /list-group #RESTAURANTS -->									
+
+									<!-- ############## PLACES TO VISIST LIST ############## -->
+							
+									<ul class="list-group col-xs-12 col-md-4">
+										<li class="list-group-item list-group-item-warning">Places To Visit</li>
+<%
+		if(locationJSON.ptv.length == 0) {
+		
+%>
+										<li class="list-group-item">No Restaurants Selected for this location!</li>
+
+<%		}
+		//end-if
+		
+		for(var pt=0; pt<locationJSON.ptv.length; pt++){
+		var ptvName = locationJSON.ptv[pt];
+%>
+										<li class="list-group-item"><%= ptvName%></li>
+<%
+		}
+		//end-for-pt
+%>									
+									</ul>
+									<!-- /list-group #PLACES TO VISIST -->	
+								</div>
+								<!-- /panel-body -->							
+							</div>
+							<!-- /panel-primary -->	
+<%
+		}
+		//end-for-i [typeof-object]
+	}	
+	//end-if
+%>												
+						</div>
+						<!-- /col-xs-12 -->
+					</div>
+					<!-- /row -->
+        		</div>
+        		<!-- /well -->
+        		<div class="row">
+					<div class="col-xs-12 col-md-12">
+						<button type="button" class="btn btn-primary" id="goBackBtn"><span class="glyphicon glyphicon-hand-left"></span> GO BACK</button>
+						<a href="/trip/save" class="btn btn-primary" role="button"><span class="glyphicon glyphicon-floppy-save"></span> SAVE TRIP</a>
+					</div>
+				</div>
+				<!-- /row -->
+        	</div>
+        	<!-- /col-md-9 -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /.container -->
+
+    <div class="container">
+
+        <hr>
+
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; <b>TravelPedia</b> - by ATHENA RANGERS (Gourav Shenoy & Manjiri Kamat)
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    <!-- /.container -->
+
+    <!-- JavaScript -->
+    <script>    	
+    	var locationsArray = "<%= locals.holidayLocations%>".split(",");    	    	
+    </script>
+    
+    <script src="/javascripts/jquery-1.10.2.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    
+    <script>
+    	$(document).ready(function(){
+    		$('#goBackBtn').on('click', function(e){
+    			window.history.back();
+    		});
+    		
+    	});
+    
+    </script>
+</body>
+
+</html>
